@@ -1,70 +1,21 @@
 # ZCMBProgressHUD
 对MBProgressHUD一些简单的封装，方便在项目中调用
 
-#### 1.在公司的项目中，图片选择的时候需要自己定义一个图片选择器，自己根据PhotoKit写了一个Demo，也顺便学习了一下PhotoKit，自己扩展了一下，既能选择图片也能选择视频。
+#### 1 项目中，大部分的网络加载时都会加上一个等待菊花框，MBProgressHUD是一个很好用的第三方库，在MBProgressHUD基础上进行了一些封装，在项目中用到的机会比较大，希望对你们有用。
 
-##### 1.1 图片选择，如下图:
-![IMG_2052.PNG](https://upload-images.jianshu.io/upload_images/1930004-646798c9f4ef9981.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
-
-##### 1.2 获取相册，如下图:
-![IMG_2053.PNG](https://upload-images.jianshu.io/upload_images/1930004-3ea2355325e25c91.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+##### 1.1 第一种就是就是普通的菊花，如下图：
+![mum.png](https://upload-images.jianshu.io/upload_images/1930004-c3ea5f778b3177e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
-##### 1.3 视频选择，如下图:
-![IMG_2054.PNG](https://upload-images.jianshu.io/upload_images/1930004-7238fd62e45e5013.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+##### 1.2 提示Toast，网络请求提示，报错，提醒之类的，如下图：
+![toast.png](https://upload-images.jianshu.io/upload_images/1930004-808f912faaf87366.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
-#### 2.相册和媒体的获取代码主要在ZCPhotoManager这个类里面，接下来可能写一篇关于PhotoKit介绍的博客。
+##### 1.3 gif图类型的菊花，现在大部分都不用系统的菊花了，都会用gif图代替，如下图：（图好像截的有问题，具体效果看代码）
+![GIf.gif](https://upload-images.jianshu.io/upload_images/1930004-da6f0c84acfbc5ef.gif?imageMogr2/auto-orient/strip)
 
-##### 2.1 获取相册
-``` bash
-- (NSMutableArray *)showAlbums {
-    
-    PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
-    PHFetchResult *topLevelUserCollections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
-    self.fetchResults = @[smartAlbums, topLevelUserCollections];
-    
-    NSMutableArray *albums = [NSMutableArray array];
-    
-    for (PHFetchResult *fetchResult in self.fetchResults)
-    {
-        for (PHCollection *collection in fetchResult) {
-            if ([collection isKindOfClass:[PHAssetCollection class]])
-            {
-                PHAssetCollection *assetCollection = (PHAssetCollection *)collection;
-                PHFetchResult *assets = [self assetsInAssetCollection:assetCollection];
-                if (assets.count > 0) {
-                    if (assetCollection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
-                        [albums insertObject:assetCollection atIndex:0];
-                    } else {
-                        [albums addObject:assetCollection];
-                    }
-                    
-                }
-                
-            }
-        }
-    }
-    return albums;
-}
+#### 2.下面上代码：
+[github地址](https://github.com/ZCLemo/ZCMBProgressHUD)
 
-```
-
-##### 2.2 获取相册中的媒体
-``` bash
-- (PHFetchResult *)assetsInAssetCollection:(PHAssetCollection *)album{
-    
-    PHFetchOptions *options = [[PHFetchOptions alloc] init];
-    options.predicate = [NSPredicate predicateWithFormat:@"mediaType in %@", self.mediaTypes];
-    options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    return [PHAsset fetchAssetsInAssetCollection:(PHAssetCollection *)album options:options];
-}
-```
-##### 2.3 然后主要的功能就是图片的展示，布局。
-
-
-#### 3.直接上Demo
-[github地址](https://github.com/ZCLemo/ZCAssetsPickerController)
-
-##### 3.1 由于时间比较短，里面的UI写的可能有点粗糙，主要是为了自己学习，就这样吧。
+#### 3.提示一下，有时候一个控制器可能同时进行多个网络请求，需要多个请求结束后再隐藏菊花，里面也提供了方法，使用- (void)hiddenWaitingForTransaction方法，里面也有例子，对于gif型菊花和普通型菊花都适用。
